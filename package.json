@@ -1,6 +1,6 @@
 {
 	"name": "@reclack/walletkit-react",
-	"version": "0.2.0",
+	"version": "0.2.1",
 	"description": "The Reclack wallet picker as a React component.",
 	"license": "MIT",
 	"author": "Reclack",
