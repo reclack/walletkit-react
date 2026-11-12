@@ -9,11 +9,13 @@ import {
 import {
 	attributesOf,
 	EVENTS,
+	networkAttributesOf,
 	type ConnectProps,
+	type NetworkProps,
 	type ReclackConnectElement,
 } from '@reclack/walletkit/element'
 
-export type { ConnectProps } from '@reclack/walletkit/element'
+export type { ConnectProps, NetworkProps } from '@reclack/walletkit/element'
 
 /**
  * The Reclack wallet picker, as a React component.
@@ -93,5 +95,43 @@ export function ReclackConnect (
 		className: props.className,
 		style: props.style,
 		...attributesOf(props),
+	})
+}
+
+/**
+ * The chain picker, as a component.
+ *
+ * Takes `networks` and `value` and answers with `onChange`, which is what a
+ * React component is expected to do. Using the element directly works, but
+ * means a ref and a listener in an effect for something that is a prop in
+ * every other control on the form.
+ */
+export function ReclackNetwork (
+	props: NetworkProps & { className?: string; style?: CSSProperties },
+) {
+	const ref = useRef<HTMLElement>(null)
+
+	// Held in a ref so a parent rebuilding its handler every render does not
+	// tear the listener down and put it back each time.
+	const handler = useRef(props.onChange)
+	handler.current = props.onChange
+
+	useEffect(() => {
+		const element = ref.current
+		if (!element) {
+			return
+		}
+		const listener = (raw: Event) => {
+			handler.current?.((raw as CustomEvent<{ network: string }>).detail.network)
+		}
+		element.addEventListener('change', listener)
+		return () => element.removeEventListener('change', listener)
+	}, [])
+
+	return createElement('reclack-network', {
+		ref,
+		className: props.className,
+		style: props.style,
+		...networkAttributesOf(props),
 	})
 }
