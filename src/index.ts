@@ -15,7 +15,7 @@ import {
 	type ReclackConnectElement,
 	type ReclackNetworkElement,
 } from '@reclack/walletkit/element'
-import type { WalletKitTheme } from '@reclack/walletkit'
+import type { WalletKit, WalletKitTheme } from '@reclack/walletkit'
 
 export type { ConnectProps, NetworkProps } from '@reclack/walletkit/element'
 
@@ -110,6 +110,8 @@ export function ReclackConnect (
  */
 export function ReclackNetwork (
 	props: NetworkProps & {
+		/** A kit to take the theme from, as the picker does. */
+		kit?: WalletKit
 		/** A theme carrying more than the four attributes can hold. */
 		theme?: WalletKitTheme
 		className?: string
@@ -118,13 +120,14 @@ export function ReclackNetwork (
 ) {
 	const ref = useRef<ReclackNetworkElement>(null)
 
-	// A property, not an attribute: a theme is an object, and a per-mode
-	// override is more than a string can carry.
+	// Properties, not attributes: neither a kit nor a theme is a string.
 	useLayoutEffect(() => {
-		if (ref.current) {
-			ref.current.theme = props.theme
+		if (!ref.current) {
+			return
 		}
-	}, [props.theme])
+		ref.current.kit = props.kit
+		ref.current.theme = props.theme
+	}, [props.kit, props.theme])
 
 	// Held in a ref so a parent rebuilding its handler every render does not
 	// tear the listener down and put it back each time.
